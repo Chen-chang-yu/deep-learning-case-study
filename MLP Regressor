@@ -1,0 +1,62 @@
+import numpy as np
+import pandas as pd
+# fix random seed for reproducibility
+np.random.seed(7)
+# load pima indians dataset
+concrete = pd.read_csv('./concrete.csv', encoding='utf-8')
+
+from sklearn.preprocessing import MinMaxScaler
+scaler = MinMaxScaler() # 此處非標準化！而是[min, max]
+scaler.fit(concrete)
+concrete_norm = scaler.transform(concrete) # 真正做轉換
+pd.DataFrame(concrete_norm).describe()
+
+
+X = concrete_norm[:,0:8]
+y = concrete_norm[:,8]
+
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25,random_state=14)
+
+from sklearn.neural_network import MLPRegressor
+
+"""
+# 一個神經元
+model_mlp = MLPRegressor(random_state=0, activation='relu', hidden_layer_sizes=1)
+model_mlp.fit(X_train, y_train)
+mlp_score=model_mlp.score(X_train,y_train)
+
+print('score:',mlp_score)
+result = model_mlp.predict(X_test)
+
+import matplotlib.pyplot as plt
+plt.scatter(y_test, result)
+plt.plot([0,1],[0,1])
+
+correlation1 = pd.DataFrame({'origin':y_test,'predict':result})
+correlation1.corr()
+
+""" 
+
+# 五個神經元
+model_mlp = MLPRegressor(random_state=0, activation='relu', hidden_layer_sizes=10)
+model_mlp.fit(X_train, y_train)
+train_score=model_mlp.score(X_train,y_train)
+print('training score:',train_score)
+
+# 方法一: 估計 X_test 的performance
+test_score=model_mlp.score(X_test,y_test)
+print('test score:',test_score)
+
+
+# 方法二: 用 r2_score 估計 performance
+from sklearn.metrics import r2_score
+result = model_mlp.predict(X_test)
+test2_score=r2_score(y_test,result)
+print('test2 score:',test2_score)
+
+plt.scatter(y_test, result)
+plt.plot([0,1],[0,1])
+
+correlation1 = pd.DataFrame({'origin':y_test,'predict':result})
+correlation1.corr()
