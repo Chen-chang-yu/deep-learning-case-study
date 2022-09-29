@@ -1,0 +1,60 @@
+
+import numpy as np
+import pandas as pd
+from keras import layers
+from keras import models
+from keras.datasets import mnist # 10 classes
+from keras.utils import to_categorical # one-hot encoding
+
+np.random.seed(7)
+
+(X_train, y_train), (X_test, y_test) = mnist.load_data()
+
+# 資料前處理
+# 將 (60000,28,28) 轉為 (60000,784) 才符合MLPRegressor 的格式
+X_train = np.reshape(X_train, (60000,784))
+#print(X_train[0])
+#print(X_train.shape)
+
+X_test = np.reshape(X_test, (10000,784))
+
+
+# 開始做model, 預計跑 1-20次, 數據存在 r2_train
+r2_train = []
+r2_test = []
+
+for i in (5,10,15,20):
+    # 計算程式開始時間
+    import time
+    start = time.time()
+    
+    # i個神經元
+    from sklearn.neural_network import MLPRegressor
+    model_mlp = MLPRegressor(random_state=0, activation='relu', hidden_layer_sizes= i)
+    model_mlp.fit(X_train, y_train)
+    mlp_score=model_mlp.score(X_train,y_train)
+    r2_train.append(mlp_score)
+    #print('score:',mlp_score)
+    test_score=model_mlp.score(X_test,y_test)
+    r2_test.append(test_score)
+
+    # 結束時間
+    end = time.time()
+    print("執行時間：%f 秒" % (end - start))
+
+    
+        
+print(r2_train)
+print(r2_test)
+    
+### 繪圖顯示訓練集與核驗集的R2 score 
+import matplotlib.pyplot as plt
+%matplotlib inline
+
+layers = (5,10,15,20)
+
+plt.plot(layers, r2_train, 'bo', label='Training r2_score')
+plt.plot(layers, r2_test, 'ro', label='Validation r2_score')
+plt.title('Training and test r2_score')
+plt.legend()
+plt.show()
