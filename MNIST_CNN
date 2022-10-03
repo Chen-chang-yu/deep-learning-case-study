@@ -1,0 +1,26 @@
+from keras.applications.vgg16 import VGG16
+from keras.preprocessing import image
+from keras.applications.vgg16 import preprocess_input, decode_predictions
+import numpy as np
+
+model = VGG16(weights='imagenet', include_top=True) 
+
+# Input：要辨識的影像
+img_path = 'tiger.jpg'
+#img_path = 'elephant.jpg'
+img = image.load_img(img_path, target_size=(224, 224))
+x = image.img_to_array(img)
+print(x.shape)
+x = np.expand_dims(x, axis=0)
+print(x.shape)
+
+# 這行的作用是?? 可有可無??
+x = preprocess_input(x)
+print(x.shape)
+
+print(model.summary())
+features = model.predict(x)
+print(features.shape)
+
+# 取得前三個最可能的類別及機率
+print('Predicted:', decode_predictions(features, top=3)[0])
